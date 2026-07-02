@@ -1,0 +1,35 @@
+/* Main background */
+.stApp{
+    background-color:#dd953c;
+}
+
+/* Main text */
+html, body, [class*="css"]{
+    color:#111827;
+}
+
+/* Titles */
+h1{
+    color:#1E3A8A;
+}
+
+h2,h3{
+    color:#2563EB;
+}
+
+/* Sidebar */
+section[data-testid="stSidebar"]{
+    background:#0F172A;
+}
+
+section[data-testid="stSidebar"] *{
+    color:white;
+}
+
+/* Metric cards */
+div[data-testid="metric-container"]{
+    background:white;
+    border-radius:12px;
+    padding:15px;
+    box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
