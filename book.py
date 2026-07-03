@@ -1,15 +1,51 @@
 from db import get_connection
 from datetime import date
-def add_book(title, author, genre):
+def add_book(
+    title,
+    author,
+    genre,
+    isbn,
+    publisher,
+    publication_year,
+    total_copies,
+    shelf_no
+):
+
     conn = get_connection()
     cur = conn.cursor()
 
     query = """
-    INSERT INTO books (title, author, genre, available)
-    VALUES (%s, %s, %s, TRUE)
+    INSERT INTO books
+    (
+        title,
+        author,
+        genre,
+        isbn,
+        publisher,
+        publication_year,
+        total_copies,
+        available_copies,
+        shelf_no
+    )
+    VALUES
+    (%s,%s,%s,%s,%s,%s,%s,%s,%s)
     """
 
-    cur.execute(query, (title, author, genre))
+    cur.execute(
+        query,
+        (
+            title,
+            author,
+            genre,
+            isbn,
+            publisher,
+            publication_year,
+            total_copies,
+            total_copies,
+            shelf_no
+        )
+    )
+
     conn.commit()
     conn.close()
 def get_books():
@@ -17,8 +53,19 @@ def get_books():
     cur = conn.cursor()
 
     cur.execute("""
-        SELECT book_id, title, author, genre, available 
-        FROM books
+    SELECT
+        book_id,
+        title,
+        author,
+        genre,
+        isbn,
+        publisher,
+        publication_year,
+        total_copies,
+        available_copies,
+        shelf_no
+    FROM books
+    ORDER BY title
     """)
     books = cur.fetchall()
 
@@ -31,7 +78,8 @@ def issue_book(user_id, book_id):
 
     # 1. Check if book is already issued
     cur.execute("""
-        SELECT available FROM books
+        SELECT available_copies
+        FROM books
         WHERE book_id = %s
     """, (book_id,))
 
@@ -41,9 +89,9 @@ def issue_book(user_id, book_id):
         conn.close()
         return "Book not found"
 
-    if result[0] is False:
+    if result[0] <= 0:
         conn.close()
-        return "Book already issued"
+        return "No copies available"
 
     # 2. Insert transaction
     cur.execute("""
@@ -62,8 +110,8 @@ def issue_book(user_id, book_id):
     # 3. Update book availability
     cur.execute("""
         UPDATE books
-        SET available = FALSE
-        WHERE book_id = %s
+        SET available_copies = available_copies - 1
+        WHERE book_id=%s
     """, (book_id,))
 
     conn.commit()
@@ -86,7 +134,7 @@ def return_book(transaction_id, book_id):
 
     cur.execute("""
         UPDATE books
-        SET available=TRUE
+        SET available_copies = available_copies + 1
         WHERE book_id=%s
     """, (book_id,))
 

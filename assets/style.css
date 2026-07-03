@@ -1,35 +1,171 @@
-/* Main background */
+/* ===========================
+   GOOGLE FONT
+=========================== */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* ===========================
+   MAIN APP
+=========================== */
+
+html, body, [class*="css"] {
+    font-family: 'Poppins', sans-serif;
+}
+
 .stApp{
-    background-color:#dd953c;
+    background: linear-gradient(135deg,#EEF5FF,#F8FAFC);
 }
 
-/* Main text */
-html, body, [class*="css"]{
-    color:#111827;
-}
+/* ===========================
+   HEADER
+=========================== */
 
-/* Titles */
 h1{
-    color:#1E3A8A;
+    color:#0B3C91;
 }
 
-h2,h3{
+h2{
+    color:#1E3A8A;
+    font-weight:600;
+}
+
+h3{
     color:#2563EB;
 }
 
-/* Sidebar */
+/* ===========================
+   SIDEBAR
+=========================== */
+
 section[data-testid="stSidebar"]{
-    background:#0F172A;
+    background:linear-gradient(180deg,#0F172A,#1E293B);
+    border-right:2px solid #2563EB;
 }
 
 section[data-testid="stSidebar"] *{
-    color:white;
+    color:rgb(133, 169, 215);
 }
 
-/* Metric cards */
+section.main .block-container {
+    background-color: #0f172a;
+    color: rgb(133, 169, 215);
+}
+
+/* ===========================
+   METRIC CARDS
+=========================== */
+
 div[data-testid="metric-container"]{
+
     background:white;
+
+    border-radius:18px;
+
+    padding:18px;
+
+    border-left:6px solid #2563EB;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+
+    transition:.3s;
+
+}
+
+div[data-testid="metric-container"]:hover{
+
+    transform:translateY(-4px);
+
+    box-shadow:0 15px 35px rgba(0,0,0,.15);
+
+}
+
+/* ===========================
+   INPUT BOXES
+=========================== */
+
+.stTextInput input,
+.stNumberInput input,
+.stSelectbox div[data-baseweb="select"]{
+
+    border-radius:12px !important;
+
+    border:2px solid #CBD5E1 !important;
+
+    background:white !important;
+
+}
+
+.stTextInput input:focus{
+
+    border:2px solid #2563EB !important;
+
+}
+
+/* ===========================
+   BUTTON
+=========================== */
+
+.stButton>button{
+
+    width:100%;
+
+    background:linear-gradient(90deg,#2563EB,#3B82F6);
+
+    color:white;
+
+    border:none;
+
     border-radius:12px;
-    padding:15px;
-    box-shadow:0 2px 8px rgba(0,0,0,.1);
+
+    font-size:16px;
+
+    font-weight:600;
+
+    padding:12px;
+
+    transition:.3s;
+
+}
+
+.stButton>button:hover{
+
+    background:linear-gradient(90deg,#1D4ED8,#2563EB);
+
+    transform:scale(1.02);
+
+}
+
+/* ===========================
+   TABLE
+=========================== */
+
+table{
+
+    border-radius:12px;
+
+    overflow:hidden;
+
+}
+
+/* ===========================
+   SUCCESS BOX
+=========================== */
+
+div[data-testid="stAlert"]{
+
+    border-radius:12px;
+
+}
+
+/* ===========================
+   DATAFRAME
+=========================== */
+
+div[data-testid="stDataFrame"]{
+
+    border-radius:15px;
+
+    overflow:hidden;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+
 }

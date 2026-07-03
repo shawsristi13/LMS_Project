@@ -66,7 +66,6 @@ if st.session_state["user"] is None:
             st.session_state["user"] = user
             st.session_state["role"] = role
             st.success("Login Successful")
-            st.rerun()
 
         else:
             st.error("Invalid Credentials")
@@ -97,6 +96,7 @@ else:
             "Reports",
             "Logout"
         ]
+        choice = st.sidebar.selectbox("Menu", menu)
 
     else:
 
@@ -108,7 +108,7 @@ else:
             "Logout"
         ]
 
-    choice = st.sidebar.selectbox("Menu", menu)
+    st.markdown("## 👇 Select an option from sidebar")
 
     st.success(
         f"Welcome back! Logged in as **{st.session_state['role'].capitalize()}**"
@@ -265,14 +265,44 @@ else:
         st.subheader("➕ Add Book")
 
         title = st.text_input("Book Title")
+
         author = st.text_input("Author")
+
         genre = st.text_input("Genre")
+
+        isbn = st.text_input("ISBN")
+
+        publisher = st.text_input("Publisher")
+
+        publication_year = st.number_input(
+            "Publication Year",
+            min_value=1900,
+            max_value=2100,
+            step=1
+        )
+
+        total_copies = st.number_input(
+            "Total Copies",
+            min_value=1,
+            step=1
+        )
+
+        shelf_no = st.text_input("Shelf Number")
 
         if st.button("Add Book"):
 
             if title and author and genre:
 
-                add_book(title, author, genre)
+                add_book(
+                    title,
+                    author,
+                    genre,
+                    isbn,
+                    publisher,
+                    publication_year,
+                    total_copies,
+                    shelf_no
+                )
 
                 st.success("Book added successfully!")
 
@@ -301,7 +331,12 @@ else:
                     "Title": book[1],
                     "Author": book[2],
                     "Genre": book[3],
-                    "Available": "✅ Yes" if book[4] else "❌ No"
+                    "ISBN": book[4],
+                    "Publisher": book[5],
+                    "Year": book[6],
+                    "Total Copies": book[7],
+                    "Available Copies": book[8],
+                    "Shelf": book[9]
                 })
 
             df = pd.DataFrame(data)
@@ -441,38 +476,37 @@ Available : {"✅ Yes" if book[4] else "❌ No"}
 
         st.subheader("📤 Issue Book")
 
+        # Get students
         students = get_students()
+
+        student_dict = {f"{s[1]} (ID:{s[0]})": s[0] for s in students}
+
+        selected_student = st.selectbox(
+            "Select Student",
+            list(student_dict.keys())
+        )
+
+        user_id = student_dict[selected_student]
+
+        # Get books
         books = get_available_books()
 
-        if not students:
-            st.warning("No students found.")
-        elif not books:
-            st.warning("No books available.")
-        else:
+        book_dict = {f"{b[1]} (ID:{b[0]})": b[0] for b in books}
 
-            student = st.selectbox(
-                "Select Student",
-                students,
-                format_func=lambda x: x[1]
-            )
+        selected_book = st.selectbox(
+            "Select Book",
+            list(book_dict.keys())
+        )
 
-            book = st.selectbox(
-                "Select Book",
-                books,
-                format_func=lambda x: x[1]
-            )
+        book_id = book_dict[selected_book]
 
-            if st.button("Issue Book"):
+        if st.button("Issue Book"):
+            result = issue_book(user_id, book_id)
 
-                result = issue_book(student[0], book[0])
-
-                if result == "success":
-                    st.success("Book issued successfully!")
-                    st.rerun()
-
-                else:
-                    st.error(result)
-                st.rerun()
+            if result == "success":
+                st.success("Book issued successfully!")
+            else:
+                st.error(result)
     # ==========================================================
     # RETURN BOOK
     # ==========================================================
@@ -514,7 +548,7 @@ Available : {"✅ Yes" if book[4] else "❌ No"}
 
                     st.success("Book returned successfully!")
 
-                    st.rerun()
+                    
 
     # ==========================================================
     # REPORTS
@@ -548,8 +582,6 @@ Available : {"✅ Yes" if book[4] else "❌ No"}
         st.session_state["role"] = None
 
         st.success("Logged Out Successfully")
-
-        st.rerun()
 
 
     # ==========================================================
