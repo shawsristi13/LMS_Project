@@ -1,6 +1,7 @@
-streamlit
-psycopg2-binary
-pandas
-plotly
 openpyxl
 reportlab
+streamlit
+psycopg2-binary
+bcrypt
+pandas
+plotly
