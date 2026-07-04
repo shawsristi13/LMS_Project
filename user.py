@@ -1,15 +1,16 @@
 from db import get_connection
+from auth import hash_password
 
 def add_user(name, email, password, role):
     conn = get_connection()
     cur = conn.cursor()
 
-    query = """
-    INSERT INTO users(name, email, password, role)
-    VALUES (%s, %s, %s, %s)
-    """
+    hashed_pw = hash_password(password)
 
-    cur.execute(query, (name, email, password, role))
+    cur.execute("""
+        INSERT INTO users (name, email, password, role)
+        VALUES (%s, %s, %s, %s)
+    """, (name, email, hashed_pw, role))
 
     conn.commit()
     conn.close()

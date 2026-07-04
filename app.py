@@ -119,94 +119,39 @@ else:
     # ==========================================================
 
     if choice == "Dashboard":
-
         st.subheader("📊 Dashboard")
-
-        col1, col2, col3, col4 = st.columns(4)
 
         conn = get_connection()
         cur = conn.cursor()
 
+        # Total books
         cur.execute("SELECT COUNT(*) FROM books")
         total_books = cur.fetchone()[0]
 
+        # Issued books
+        cur.execute("SELECT COUNT(*) FROM transactions WHERE status='issued'")
+        issued_books = cur.fetchone()[0]
+
+        # Total users
         cur.execute("SELECT COUNT(*) FROM users")
         total_users = cur.fetchone()[0]
 
-        cur.execute("SELECT COUNT(*) FROM books WHERE available = TRUE")
-        available_books = cur.fetchone()[0]
-
-        cur.execute(
-            "SELECT COUNT(*) FROM transactions WHERE status='issued'"
-        )
-        issued_books = cur.fetchone()[0]
-
         conn.close()
+
+        # METRICS UI
+        col1, col2, col3 = st.columns(3)
 
         col1.metric("📚 Total Books", total_books)
-        col2.metric("👤 Total Users", total_users)
-        col3.metric("📤 Issued Books", issued_books)
-        col4.metric("✅ Available", available_books)
+        col2.metric("📤 Issued Books", issued_books)
+        col3.metric("👤 Total Users", total_users)
 
-        st.divider()
+        # SIMPLE BAR CHART DATA
+        chart_data = {
+            "Category": ["Books", "Issued", "Users"],
+            "Count": [total_books, issued_books, total_users]
+        }
 
-        st.subheader("📚 Books by Genre")
-
-        conn = get_connection()
-        cur = conn.cursor()
-
-        cur.execute("""
-        SELECT genre, COUNT(*)
-        FROM books
-        GROUP BY genre
-        ORDER BY COUNT(*) DESC
-        """)
-
-        genre_data = cur.fetchall()
-
-        conn.close()
-
-        if genre_data:
-
-            df = pd.DataFrame(
-                genre_data,
-                columns=["Genre", "Books"]
-            )
-
-            fig = px.bar(
-                df,
-                x="Genre",
-                y="Books",
-                title="Books Available by Genre"
-            )
-
-            st.plotly_chart(
-                fig,
-                use_container_width=True
-            )
-
-
-        st.subheader("📖 Library Status")
-
-        available = total_books - issued_books
-
-        status_df = pd.DataFrame({
-            "Status": ["Available", "Issued"],
-            "Books": [available, issued_books]
-        })
-
-        fig = px.pie(
-            status_df,
-            names="Status",
-            values="Books",
-            hole=0.5,
-            title="Book Availability"
-        )
-
-        st.plotly_chart(
-            fig,
-            use_container_width=True
-        )
+        st.bar_chart(chart_data, x="Category", y="Count")
 
         # ==========================================================
         # RECENTLY ADDED BOOKS

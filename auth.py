@@ -1,16 +1,32 @@
+import bcrypt
 from db import get_connection
 
+# ---------------- PASSWORD HASH ----------------
+def hash_password(password):
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+
+# ---------------- PASSWORD CHECK ----------------
+def check_password(password, hashed_password):
+    return bcrypt.checkpw(
+        password.encode(),
+        hashed_password.encode()
+    )
+
+# ---------------- LOGIN USER ----------------
 def login_user(email, password, role):
     conn = get_connection()
     cur = conn.cursor()
 
-    query = """
-    SELECT * FROM users 
-    WHERE email=%s AND password=%s AND role=%s
-    """
+    cur.execute("""
+        SELECT user_id, name, email, password, role
+        FROM users
+        WHERE email=%s AND role=%s
+    """, (email, role))
 
-    cur.execute(query, (email, password, role))
     user = cur.fetchone()
-
     conn.close()
-    return user
+
+    if user and check_password(password, user[3]):
+        return user
+
+    return None
