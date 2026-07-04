@@ -1,5 +1,3 @@
-APP_NAME = "📚 SMART LIBRARY"
-
 LIBRARY_NAME = "Central Library"
 
 MAX_BOOKS_PER_STUDENT = 3
