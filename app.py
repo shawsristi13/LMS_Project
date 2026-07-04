@@ -55,7 +55,7 @@ if st.session_state["user"] is None:
 
     email = st.text_input("Email")
     password = st.text_input("Password", type="password")
-    role = st.selectbox("Role", ["admin", "student"])
+    role = st.selectbox("Role", ["Select your role","admin", "student"])
 
     if st.button("Login"):
         user = login_user(email, password, role)
@@ -66,7 +66,7 @@ if st.session_state["user"] is None:
             st.success("Login Successful")
             st.rerun()
         else:
-            st.error("Invalid Credentials")
+            st.error("Invalid Credentials (Make sure you have selected your role)")
 
 
 # ==========================================================
