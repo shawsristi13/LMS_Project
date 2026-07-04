@@ -53,22 +53,22 @@ def get_books():
     cur = conn.cursor()
 
     cur.execute("""
-    SELECT
-        book_id,
-        title,
-        author,
-        genre,
-        isbn,
-        publisher,
-        publication_year,
-        total_copies,
-        available_copies,
-        shelf_no
-    FROM books
-    ORDER BY title
+        SELECT
+            book_id,
+            title,
+            author,
+            genre,
+            isbn,
+            publisher,
+            publication_year,
+            total_copies,
+            available,
+            shelf_no
+        FROM books
+        ORDER BY title
     """)
-    books = cur.fetchall()
 
+    books = cur.fetchall()
     conn.close()
     return books
 def issue_book(user_id, book_id):

@@ -37,13 +37,18 @@ def export_books_excel():
 
     for book in books:
 
-        ws.append([
-            book[0],
-            book[1],
-            book[2],
-            book[3],
-            "Yes" if book[4] else "No"
-        ])
+        data.append({
+            "Book ID": book[0],
+            "Title": book[1],
+            "Author": book[2],
+            "Genre": book[3],
+            "ISBN": book[4],
+            "Publisher": book[5],
+            "Year": book[6],
+            "Total Copies": book[7],
+            "Available": "Yes" if book[8] else "No",
+            "Shelf": book[9]
+        })
 
     filename = "books_report.xlsx"
 

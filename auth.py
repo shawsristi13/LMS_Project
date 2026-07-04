@@ -26,6 +26,11 @@ def login_user(email, password, role):
     user = cur.fetchone()
     conn.close()
 
+    print("USER FROM DB:", user)
+
+    if user:
+        print("PASSWORD MATCH:", check_password(password, user[3]))
+
     if user and check_password(password, user[3]):
         return user
 
