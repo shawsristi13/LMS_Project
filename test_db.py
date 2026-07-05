@@ -1,11 +1,9 @@
 from db import get_connection
 
-conn = get_connection()
-cur = conn.cursor()
-
-cur.execute("SELECT version();")
-db_version = cur.fetchone()
-
-print("Connected to:", db_version)
-
-conn.close()
+try:
+    conn = get_connection()
+    print("✅ Connected successfully!")
+    conn.close()
+except Exception as e:
+    print("❌ Error:")
+    print(e)

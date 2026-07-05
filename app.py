@@ -14,6 +14,9 @@ from book import (
     update_book,
     delete_book,
     get_borrowed_books,
+    get_issued_books,
+    calculate_fine,
+    get_overdue_books,
     get_available_books
 )
 
@@ -41,6 +44,9 @@ if "user" not in st.session_state:
 
 if "role" not in st.session_state:
     st.session_state["role"] = None
+
+if "page" not in st.session_state:
+    st.session_state["page"] = "Home"
 
 
 
@@ -74,10 +80,14 @@ if st.session_state["user"] is None:
 # ==========================================================
 else:
 
-    st.sidebar.success(f"Logged in as {st.session_state['role']}")
+    st.sidebar.success(
+        f"Logged in as {st.session_state['role'].capitalize()}"
+    )
 
     # ---------------- MENU ----------------
+
     if st.session_state["role"] == "admin":
+
         menu = [
             "Home",
             "Dashboard",
@@ -92,7 +102,9 @@ else:
             "Reports",
             "Logout"
         ]
+
     else:
+
         menu = [
             "Home",
             "Dashboard",
@@ -102,54 +114,126 @@ else:
             "Logout"
         ]
 
-    choice = st.sidebar.selectbox("Menu", menu)
+    # Sidebar Menu
+    sidebar_choice = st.sidebar.selectbox(
+        "📂 Navigation",
+        menu,
+        index=menu.index(st.session_state["page"]) if st.session_state["page"] in menu else 0
+    )
 
-    
+    st.session_state["page"] = sidebar_choice
+    choice = st.session_state["page"]
 
     st.success(
         f"Welcome back! Logged in as **{st.session_state['role'].capitalize()}**"
     )
+
     # ==========================================================
     # HOME PAGE
     # ==========================================================
+
     if choice == "Home":
 
         st.markdown("""
-        <div style="
-            text-align:center;
-            padding:40px;
-            background:linear-gradient(135deg,#1E3A8A,#2563EB);
-            border-radius:15px;
-            color:white;
-        ">
-            <h1>📚 LibraryPRO</h1>
-            <p style="font-size:18px;">
-                Manage books, users, borrowing and returns in a smart way
-            </p>
+        <div class="main-card">
+
+        <h1>📚 LibraryPRO</h1>
+
+        <h3>Smart Library Management System</h3>
+
+        <p>
+        Manage Books • Users • Borrowing • Reports
+        </p>
+
         </div>
         """, unsafe_allow_html=True)
 
         st.write("")
 
+        
+        st.markdown("## 🚀 Quick Access")
+
         col1, col2, col3 = st.columns(3)
 
-        col1.metric("📘 Smart Library", "Virtual Shelf")
-        col2.metric("⚡ Fast Access", "Real Data")
-        col3.metric("🔐 Secure Login", "Role Based")
+        with col1:
+            if st.button("📊 Dashboard", use_container_width=True):
+                st.session_state["page"] = "Dashboard"
+                st.rerun()
+
+        with col2:
+            if st.button("📚 View Books", use_container_width=True):
+                st.session_state["page"] = "View Books"
+                st.rerun()
+
+        with col3:
+            if st.session_state["role"] == "admin":
+                if st.button("➕ Add Book", use_container_width=True):
+                    st.session_state["page"] = "Add Book"
+                    st.rerun()
 
         st.write("")
 
-        st.markdown("### 🚀 Features")
+        if st.session_state["role"] == "admin":
 
-        st.markdown("""
-        - 📖 Book Management  
-        - 👤 User Management  
-        - 📤 Issue & Return System  
-        - 📊 Analytics Dashboard  
-        - 📄 Reports & Export  
-        """)
+            col4, col5, col6 = st.columns(3)
 
-        st.info("👈 Use sidebar to navigate through the system")
+            with col4:
+                if st.button("👥 User Management", use_container_width=True):
+                    st.session_state["page"] = "User Management"
+                    st.rerun()
+
+            with col5:
+                if st.button("📤 Issue Book", use_container_width=True):
+                    st.session_state["page"] = "Issue Book"
+                    st.rerun()
+
+            with col6:
+                if st.button("📥 Return Book", use_container_width=True):
+                    st.session_state["page"] = "Return Book"
+                    st.rerun()
+
+            st.write("")
+
+            col7, col8, col9 = st.columns(3)
+
+            with col7:
+                if st.button("🔍 Search Books", use_container_width=True):
+                    st.session_state["page"] = "Search Books"
+                    st.rerun()
+
+            with col8:
+                if st.button("📄 Reports", use_container_width=True):
+                    st.session_state["page"] = "Reports"
+                    st.rerun()
+
+            with col9:
+                if st.button("🚪 Logout", use_container_width=True):
+                    st.session_state["user"] = None
+                    st.session_state["role"] = None
+                    st.session_state["page"] = "Home"
+                    st.rerun()
+
+        else:
+
+            col4, col5, col6 = st.columns(3)
+
+            with col4:
+                if st.button("🔍 Search Books", use_container_width=True):
+                    st.session_state["page"] = "Search Books"
+                    st.rerun()
+
+            with col5:
+                if st.button("📖 My Borrowed Books", use_container_width=True):
+                    st.session_state["page"] = "My Borrowed Books"
+                    st.rerun()
+
+            with col6:
+                if st.button("🚪 Logout", use_container_width=True):
+                    st.session_state["user"] = None
+                    st.session_state["role"] = None
+                    st.session_state["page"] = "Home"
+                    st.rerun()
+
     # ==========================================================
     # DASHBOARD
     # ==========================================================
@@ -268,6 +352,36 @@ else:
 
         else:
             st.info("No books available.")
+
+
+        st.divider()
+
+        st.subheader("⏰ Overdue Books")
+
+        overdue = get_overdue_books()
+
+        if overdue:
+
+            df = pd.DataFrame(
+                overdue,
+                columns=[
+                    "Student",
+                    "Book",
+                    "Issue Date",
+                    "Due Date",
+                    "Days Overdue"
+                ]
+            )
+
+            st.dataframe(
+                df,
+                width="stretch",
+                hide_index=True
+            )
+
+        else:
+
+            st.success("🎉 No overdue books.")
     # ==========================================================
     # USER MANAGEMENT
     # ==========================================================
@@ -487,7 +601,8 @@ else:
                     "Issue Date",
                     "Due Date",
                     "Return Date",
-                    "Status"
+                    "Status",
+                    "Fine"
                 ]
             )
 
@@ -572,8 +687,12 @@ else:
 
                 if st.button("Return Book"):
 
-                    return_book(book[0], book[1])
-                    st.success("Book returned successfully!")
+                    fine = return_book(book[0], book[1])
+
+                    if fine > 0:
+                        st.error(f"⚠ Fine Applied: ₹{fine}")
+                    else:
+                        st.success("Book returned successfully! No fine 🎉")
                     st.rerun()
 
             else:

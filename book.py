@@ -1,5 +1,37 @@
 from db import get_connection
 from datetime import date
+
+def calculate_fine(transaction_id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT due_date, return_date
+        FROM transactions
+        WHERE transaction_id = %s
+    """, (transaction_id,))
+
+    data = cur.fetchone()
+    conn.close()
+
+    if not data:
+        return 0
+
+    due_date, return_date = data
+
+    # if not returned yet, use today
+    if return_date:
+        end_date = return_date
+    else:
+        end_date = date.today()
+
+    overdue_days = (end_date - due_date).days
+
+    if overdue_days > 0:
+        return overdue_days * 10   # ₹10 per day fine
+
+    return 0
 def add_book(
     title,
     author,
@@ -77,21 +109,27 @@ def return_book(transaction_id, book_id):
     conn = get_connection()
     cur = conn.cursor()
 
+    fine = calculate_fine(transaction_id)
+
     cur.execute("""
         UPDATE transactions
-        SET status='returned',
-            return_date=CURRENT_DATE
-        WHERE transaction_id=%s
-    """, (transaction_id,))
+        SET status = 'returned',
+            return_date = CURRENT_DATE,
+            fine = %s
+        WHERE transaction_id = %s
+    """, (fine, transaction_id))
 
     cur.execute("""
         UPDATE books
-        SET available=TRUE
-        WHERE book_id=%s
+        SET available = TRUE
+        WHERE book_id = %s
     """, (book_id,))
 
     conn.commit()
     conn.close()
+
+    return fine
+
 def get_available_books():
     conn = get_connection()
     cur = conn.cursor()
@@ -239,3 +277,66 @@ def issue_book(user_id, book_id):
     conn.close()
 
     return "success"
+
+def get_issued_books(user_id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            t.transaction_id,
+            b.book_id,
+            b.title
+
+        FROM transactions t
+
+        JOIN books b
+        ON t.book_id = b.book_id
+
+        WHERE
+            t.user_id = %s
+            AND t.status = 'issued'
+
+        ORDER BY b.title
+    """, (user_id,))
+
+    books = cur.fetchall()
+
+    conn.close()
+
+    return books
+
+def get_overdue_books():
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            u.name,
+            b.title,
+            t.issue_date,
+            t.due_date,
+            CURRENT_DATE - t.due_date AS overdue_days
+
+        FROM transactions t
+
+        JOIN users u
+        ON t.user_id = u.user_id
+
+        JOIN books b
+        ON t.book_id = b.book_id
+
+        WHERE
+            t.status = 'issued'
+            AND t.due_date < CURRENT_DATE
+
+        ORDER BY overdue_days DESC
+    """)
+
+    books = cur.fetchall()
+
+    conn.close()
+
+    return books

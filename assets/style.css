@@ -169,3 +169,108 @@ div[data-testid="stDataFrame"]{
     box-shadow:0 5px 15px rgba(0,0,0,.08);
 
 }
+/* ==========================================
+   HOME PAGE HERO CARD
+========================================== */
+
+.main-card{
+
+    background:linear-gradient(135deg,#1E40AF,#2563EB);
+
+    color:white;
+
+    border-radius:20px;
+
+    padding:35px;
+
+    text-align:center;
+
+    box-shadow:0 15px 35px rgba(37,99,235,.25);
+
+    margin-bottom:25px;
+
+}
+
+.main-card h1{
+
+    color:white;
+
+    font-size:42px;
+
+    margin-bottom:8px;
+
+}
+
+.main-card h3{
+
+    color:#E0F2FE;
+
+    margin-bottom:10px;
+
+}
+
+.main-card p{
+
+    color:white;
+
+    font-size:17px;
+
+}
+
+/* ==========================================
+   FEATURE CARDS
+========================================== */
+
+.feature-card{
+
+    background:white;
+
+    border-radius:18px;
+
+    padding:22px;
+
+    text-align:center;
+
+    border:1px solid #E2E8F0;
+
+    box-shadow:0 8px 20px rgba(0,0,0,.08);
+
+    transition:0.3s;
+
+    margin-bottom:20px;
+
+}
+
+.feature-card:hover{
+
+    transform:translateY(-8px);
+
+    box-shadow:0 18px 35px rgba(0,0,0,.18);
+
+}
+
+.feature-icon{
+
+    font-size:50px;
+
+    margin-bottom:12px;
+
+}
+
+.feature-title{
+
+    font-size:22px;
+
+    font-weight:600;
+
+    color:#1E3A8A;
+
+}
+
+.feature-text{
+
+    color:#64748B;
+
+    font-size:15px;
+
+}
